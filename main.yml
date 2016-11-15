@@ -1,0 +1,44 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  remote_user: ubuntu
+  tasks:
+    - name: Install deadsnakes
+      apt_repository:
+        repo: "ppa:fkrull/deadsnakes-python2.7"
+    - name: Install python
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - python2.7
+        - python2.7-dev
+        - python-pip
+        - libcurl4-openssl-dev
+    - name: Install node 4.x key
+      apt_key:
+        url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+        state: present
+    - name: Install node 4.x repo
+      apt_repository:
+        repo: 'deb https://deb.nodesource.com/node_4.x trusty main'
+        state: present
+      tags: [node, node_repo]
+    - name: Install node
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - nodejs
+      tags: [node]
+
+    - name: Upgrade NPM packages
+      npm:
+        name: "{{ item }}"
+        global: yes
+        state: latest
+      tags: [nodejs]
+      with_items:
+        - npm
+        - slackin

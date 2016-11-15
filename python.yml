@@ -1,0 +1,24 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  remote_user: ubuntu
+  tasks:
+    - name: Install Felix Krull's deadsnakes-python2
+      apt_repository:
+        repo: "ppa:fkrull/deadsnakes-python2.7"
+        state: present
+      tags: [deadsnakes-repo]
+    - name: Install python
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      with_items:
+        - python2.7
+        - python2.7-dev
+        - python-pip
+        - libcurl4-openssl-dev
+    - name: Upgrade pip
+      pip: name=pip extra_args="--upgrade"
+      tags: [python-packages, pip-packages]
